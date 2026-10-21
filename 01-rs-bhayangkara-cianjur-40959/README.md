@@ -6,19 +6,29 @@
 
 ---
 
-## 1. Deskripsi Kebutuhan
+## 1. Tangkapan Layar Bukti Pengerjaan
+
+### A. Tiket Penugasan pada Sistem Manajemen Proyek (MARK)
+![Tiket MARK 40959](./screenshots/01-tiket-mark-40959.png)
+
+### B. Hasil Akhir Implementasi Antarmuka (Pop-up Pasien Pulang & Tabel Riwayat TTV)
+![Hasil UI Riwayat TTV](./screenshots/02-hasil-ui-riwayat-ttv.png)
+
+---
+
+## 2. Deskripsi Kebutuhan
 Pada modul **Daftar Antrian Suster Rawat Jalan / IGD**, ketika petugas medis memilih aksi **Pasien Pulang**, sistem perlu menampilkan tabel **Riwayat Tanda-Tanda Vital (TTV)** milik pasien tersebut selama masa perawatan, sehingga petugas dapat memverifikasi kondisi klinis terakhir pasien (Tekanan Darah, Nadi, Pernapasan, Suhu, SpO2, dan Kesadaran).
 
 ---
 
-## 2. Daftar File dalam Folder Ini
+## 3. Daftar File dalam Folder Ini
 1. [`DaftarAntrianSusterRajal.html`](./DaftarAntrianSusterRajal.html) — File *view* HTML AngularJS (Perubahan pada baris `1063–1285`).
 2. [`DaftarAntrianSusterRajalCtrl.js`](./DaftarAntrianSusterRajalCtrl.js) — File *controller* AngularJS (Perubahan pada baris `31–101` dan `2330–2333`).
 3. [`commit-41a6e0ff.diff`](./commit-41a6e0ff.diff) — File *patch/diff* asli dari Git yang menunjukkan baris kode yang ditambahkan dan diubah.
 
 ---
 
-## 3. Cuplikan Implementasi Kode Utama
+## 4. Cuplikan Implementasi Kode Utama
 
 ### A. Konfigurasi Kendo UI Grid (`DaftarAntrianSusterRajalCtrl.js`)
 ```javascript

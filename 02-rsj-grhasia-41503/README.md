@@ -6,12 +6,28 @@
 
 ---
 
-## 1. Deskripsi Kebutuhan
+## 1. Tangkapan Layar Bukti Pengerjaan
+
+### A. Tiket Penugasan pada Sistem Manajemen Proyek (MARK)
+![Tiket MARK 41503](./screenshots/01-tiket-mark-41503.png)
+
+### B. Hasil Cetak Bagian Skrining Risiko Nutrisional (Anak & Dewasa)
+![Skrining Nutrisi](./screenshots/02-cetak-skrining-nutrisi.png)
+
+### C. Hasil Cetak Bagian Psikososial, Spiritual & Mekanisme Koping
+![Pengkajian Lanjutan](./screenshots/03-cetak-pengkajian-lanjutan.png)
+
+### D. Hasil Cetak Bagian Masalah Keperawatan, Tanggal/Jam Selesai, & Tanda Tangan + NIP Perawat
+![Masalah Keperawatan dan TTD](./screenshots/04-cetak-masalah-keperawatan-ttd.png)
+
+---
+
+## 2. Deskripsi Kebutuhan
 Membangun tampilan cetak (*print view*) untuk formulir rekam medis **RM.40.02.Rev01 — Pengkajian Awal Keperawatan Rawat Inap Non Jiwa** pada SIMRS RSJ Grhasia Yogyakarta. Dokumen cetak harus presisi mengikuti format standar akreditasi rumah sakit pada ukuran kertas F4/Folio (`210mm x 330mm`), memetakan ratusan atribut pemeriksaan fisik, skala nyeri, risiko jatuh, status fungsional, masalah keperawatan, hingga tanda tangan dan NIP perawat pemeriksa.
 
 ---
 
-## 2. Daftar File dalam Folder Ini
+## 3. Daftar File dalam Folder Ini
 1. [`pengkajian-awal-keperawatan-ri-non-jiwa.blade.php`](./pengkajian-awal-keperawatan-ri-non-jiwa.blade.php) — File *template* laporan Laravel Blade (1.135 baris kode).
 2. [`PengkajianAwalKeperawatanRINonJiwaCtrl.js`](./PengkajianAwalKeperawatanRINonJiwaCtrl.js) — File *controller* AngularJS yang menghubungkan aksi cetak di frontend ke endpoint report backend (baris `1982–2004`).
 3. [`numericPainRatingScale_HD.png`](./numericPainRatingScale_HD.png) — Aset gambar instrumen *Numeric Pain Rating Scale* untuk bagian penilaian nyeri.
@@ -19,7 +35,7 @@ Membangun tampilan cetak (*print view*) untuk formulir rekam medis **RM.40.02.Re
 
 ---
 
-## 3. Cuplikan Implementasi Kode Utama
+## 4. Cuplikan Implementasi Kode Utama
 
 ### A. Fungsi Cetak di Frontend (`PengkajianAwalKeperawatanRINonJiwaCtrl.js`)
 ```javascript
