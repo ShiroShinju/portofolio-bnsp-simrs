@@ -1,0 +1,163 @@
+﻿commit 41a6e0ff6755ea4bafcd2d1f344585a0711aeac2
+Author: ShiroShinju <goshawk-outlier-0k@icloud.com>
+Date:   Thu Oct 1 15:56:10 2026 +0700
+
+    #40959 Kondisi pasien saat keluar IGD ada kondisi disediakan riwayat ttv (pengkajian medis igd)
+
+diff --git a/frontend/app/module/RawatJalan/DaftarAntrianSusterRajal.html b/frontend/app/module/RawatJalan/DaftarAntrianSusterRajal.html
+index fec365ff..5b548ba9 100644
+--- a/frontend/app/module/RawatJalan/DaftarAntrianSusterRajal.html
++++ b/frontend/app/module/RawatJalan/DaftarAntrianSusterRajal.html
+@@ -1060,20 +1060,24 @@
+             </div>
+         </div>
+     </div>
+-    <div kendo-window="popUpPulang" k-title="'Pasien Pulang'" k-width="900" k-height="300" k-visible="false">
+-        <div class="grid_12">
+-            <div class="grid_6">
+-                <div class="grid_12">
+-                    <label c-label item="item" c-label-text="Status Pulang"></label>
+-                </div>
+-                <div class="clear"></div>
+-
+-                <div class="grid_12">
+-                    <input style="width: 100%;" kendo-combo-box k-ng-model="pulang.statuspulang"
+-                        k-data-text-field="'namaexternal'" k-data-value-field="'id'" k-filter="'contains'"
+-                        k-auto-bind="false" k-data-source="liststatuspulang" k-on-change="kondisi()" />
+-                </div>
++    <div kendo-window="popUpPulang" k-title="'Pasien Pulang'" k-width="950" k-visible="false">
++
++        <div class="grid_12" style="display: flex; align-items: flex-end; gap: 10px; margin-bottom: 5px;">
++            <div style="width: 280px;">
++                <label c-label item="item" c-label-text="Status Pulang"></label>
++                <input style="width: 100%;" kendo-combo-box k-ng-model="pulang.statuspulang"
++                    k-data-text-field="'namaexternal'" k-data-value-field="'id'" k-filter="'contains'"
++                    k-auto-bind="false" k-data-source="liststatuspulang" k-on-change="kondisi()" />
+             </div>
++            <div>
++                <button class="btnTemplate1" 
++                        style="margin: 0; padding: 0 16px; height: 30px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" 
++                        ng-click="simpanPulang()">
++                    <i class="fa fa-save"></i> Simpan
++                </button>
++            </div>
++        </div>
++        <div class="clear"></div>
+ 
+             <div class="panel panel-default container_12" ng-show="pulang.statuspulang.id == 16">
+                 <fieldset class="effect-shadow" style=" border-radius: 4px">
+@@ -1267,11 +1271,19 @@
+                 </div>-->
+             </div>
+ 
+-            <div class="grid_6" style="margin-top: 16px">
+-                <button class="btnTemplate1" style="margin-left: 0;" ng-click="simpanPulang()">Simpan</button>
++            <div class="clear"></div>
++
++            <!-- Tabel Riwayat TTV Pasien Saat Pulang (Full Width di Bawah) -->
++            <div class="grid_12" style="margin-top: 20px; width: 100%; clear: both;">
++                <fieldset class="effect-shadow" style="border-radius: 4px; padding: 12px;">
++                    <legend><b>Riwayat Tanda-Tanda Vital (TTV) Pasien</b></legend>
++                    <div kendo-grid k-data-source="sourceTtv" k-options="ttvGridOptions"></div>
++                </fieldset>
+             </div>
++            <div class="clear"></div>
+         </div>
+     </div>
++
+     <div kendo-window="popUpDiagnosa" k-title="'Diagnosa Fre Text'" k-width="800" k-height="200" k-visible="false">
+         <div class="grid_12">
+             <div class="grid_12">
+diff --git a/frontend/app/module/RawatJalan/DaftarAntrianSusterRajalCtrl.js b/frontend/app/module/RawatJalan/DaftarAntrianSusterRajalCtrl.js
+index d6cc392a..23a08853 100644
+--- a/frontend/app/module/RawatJalan/DaftarAntrianSusterRajalCtrl.js
++++ b/frontend/app/module/RawatJalan/DaftarAntrianSusterRajalCtrl.js
+@@ -28,6 +28,77 @@ define(['initialize', 'Configuration'], function (initialize, config) {
+             $scope.item.tanggalRencakaKontrol = $scope.now;
+             $scope.dataPasienSelected = {};
+             $scope.isRouteLoading = false;
++            // Konfigurasi Kendo Grid untuk Riwayat TTV Pasien Pulang
++            $scope.ttvGridOptions = {
++                pageable: {
++                    pageSize: 5,
++                    messages: {
++                        display: "{0} - {1} dari {2} data",
++                        empty: "Tidak ada data TTV"
++                    }
++                },
++                scrollable: false,
++                columns: [
++                    { field: "tgl", title: "Waktu / Tgl EMR", width: "160px" },
++                    { field: "tekanandarah", title: "TD (mmHg)", width: "100px", attributes: { style: "text-align: center" } },
++                    { field: "nadi", title: "Nadi (x/m)", width: "90px", attributes: { style: "text-align: center" } },
++                    { field: "pernapasan", title: "Napas (x/m)", width: "95px", attributes: { style: "text-align: center" } },
++                    { field: "suhu", title: "Suhu (┬░C)", width: "85px", attributes: { style: "text-align: center" } },
++                    { field: "spo2", title: "SpO2 (%)", width: "85px", attributes: { style: "text-align: center" } },
++                    { field: "kesadaran", title: "Kesadaran", width: "130px" }
++                ]
++            };
++            function getRiwayatTtvPulang(noRegistrasi) {
++                $scope.sourceTtv = new kendo.data.DataSource({ data: [] });
++                if (!noRegistrasi) return;
++
++                medifirstService.get('emr/get-vital-sign-2?noRegistrasi=' + noRegistrasi).then(function (res) {
++                    var dataArray = [];
++                    if (res && res.data) {
++                        dataArray = Array.isArray(res.data) ? res.data : (res.data.data ? res.data.data : []);
++                    }
++                    console.log('Data TTV Noreg ' + noRegistrasi + ':', dataArray);
++
++                    if (dataArray && dataArray.length > 0) {
++                        var grouped = {};
++                        for (var i = 0; i < dataArray.length; i++) {
++                            var item = dataArray[i];
++                            var waktu = item.tgl ? item.tgl : '-';
++                            if (!grouped[waktu]) {
++                                grouped[waktu] = {
++                                    tgl: waktu,
++                                    tekanandarah: '-',
++                                    nadi: '-',
++                                    pernapasan: '-',
++                                    suhu: '-',
++                                    spo2: '-',
++                                    kesadaran: '-'
++                                };
++                            }
++                            if (item.tekanandarah) grouped[waktu].tekanandarah = item.tekanandarah;
++                            if (item.nadi) grouped[waktu].nadi = item.nadi;
++                            if (item.pernapasan) grouped[waktu].pernapasan = item.pernapasan;
++                            if (item.suhu) grouped[waktu].suhu = item.suhu;
++                            if (item.spo2) grouped[waktu].spo2 = item.spo2;
++                            if (item.kesadaran) {
++                                grouped[waktu].kesadaran = item.kesadaran.indexOf('~') !== -1 ? item.kesadaran.split('~')[1] : item.kesadaran;
++                            }
++                        }
++
++                        var listData = [];
++                        for (var key in grouped) {
++                            listData.push(grouped[key]);
++                        }
++
++                        $scope.sourceTtv = new kendo.data.DataSource({
++                            data: listData,
++                            pageSize: 5
++                        });
++                    }
++                }, function (error) {
++                    console.error('Gagal memuat data TTV:', error);
++                });
++            }
+             $rootScope.isOpen = true;
+             $scope.cboUbahDokter = true;
+             $scope.norecPDbuttonSelected = "";
+@@ -2256,6 +2327,10 @@ define(['initialize', 'Configuration'], function (initialize, config) {
+                 //     return;
+                 // }
+                 // if (dataPasienSelected.isonline != "-") {
++                // Panggil TTV Pulang
++                if (dataPasienSelected && dataPasienSelected.noregistrasi) {
++                    getRiwayatTtvPulang(dataPasienSelected.noregistrasi);
++                }
+                 if (dataPasienSelected.statusschedule != "" && dataPasienSelected.objectruanganfk != "569") {
+                     if (dataPasienSelected.istaskantrol == 3 || dataPasienSelected.istaskantrol == null) {
+                         toastr.error('Pengiriman Task Id 5 Tidak Bisa Dilakukan, Task Id Saat ini adalah ' + dataPasienSelected.istaskantrol, 'Info')
